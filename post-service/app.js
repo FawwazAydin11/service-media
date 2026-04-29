@@ -1,0 +1,31 @@
+var express = require('express');
+var path = require('path');
+var cookieParser = require('cookie-parser');
+var logger = require('morgan');
+var cors = require('cors');
+var db = require('./config/Database');
+require('./models/PostModel');
+
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+var postsRouter = require('./routes/posts');
+
+var app = express();
+
+app.use(cors());
+
+db.sync()
+  .then(() => console.log('Database connected and synchronized'))
+  .catch((error) => console.log('Database connection error:', error));
+
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(express.static(path.join(__dirname, 'public')));
+
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/posts', postsRouter);
+
+module.exports = app;
